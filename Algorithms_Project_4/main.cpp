@@ -23,7 +23,6 @@ public:
 		board(newBoard),
 		moveString(newMoveString),
 		parent(newParent) {}
-
 };
 
 //======================//
@@ -34,8 +33,8 @@ bool isSolved(std::string board)
 {
 	for (int i = 5; i >= 0; i--)
 	{
-		if (board[i*6+3] > 1) return false;
-		else if (board[i*6+3] == 1) return true;
+		if (board[18+i] > 1) return false;
+		else if (board[18+i] == 1) return true;
 		else continue;
 	}
 }
@@ -52,14 +51,14 @@ int main()
 
 	string board = "", startingBoard = "";
 	queue<Move> moves;
+	Move currentMove;
 	map<string, int> previousPositions;
 	map<string, int> colorsToNums; // convenience really
 
 	// read in all input
-
 	cin >> numCars;
 
-	for (int i = 0; i < numCars; i++)
+	for (int i = 1; i <= numCars; i++)
 	{
 		string type, color;
 		char orientation;
@@ -72,28 +71,36 @@ int main()
 		// Insert automobile onto the board
 		if (type == "car")
 		{
+			board[row * 6 + col] = i;
 			if (orientation == 'h')
 			{
-
+				board[row * 6 + col + 1] = i;
 			}
 			else if (orientation == 'v')
 			{
-
+				board[row * 6 + col + 6] = i;
 			}
 		}
-		if (type == "truck")
+		else if (type == "truck")
 		{
+			board[row * 6 + col] = i;
 			if (orientation == 'h')
 			{
-
+				board[row * 6 + col + 6] = i;
+				board[row * 6 + col + 12] = i;
 			}
 			else if (orientation == 'v')
 			{
-
+				board[row * 6 + col] = i;
 			}
+		}
+		else
+		{
+			cout << "[X] Malformed input on car " << i << endl;
 		}
 	}
 
+	// Main loop, solving and adding moves
 	do 
 	{
 		if (isSolved(board))
@@ -111,7 +118,13 @@ int main()
 		}
 
 		// add derivative moves to queue
+		moves.push(currentMove); // placeholder
 		// blackMagic();
+
+		// Set up for next loop
+		currentMove = moves.front();
+		moves.pop();
+		board = currentMove.board;
 
 	} while (!moves.empty());
 }
