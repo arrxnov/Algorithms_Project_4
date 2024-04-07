@@ -49,7 +49,6 @@ int checkAbove(std::string& board, int i)
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == 0
 		&& spaceToCheck >= 6
-		&& spaceToCheck <= 30
 		)
 	{
 		spaceToCheck -= 6;
@@ -88,11 +87,10 @@ int checkBelow(std::string& board, int i)
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == 0
-		&& spaceToCheck >= 6
 		&& spaceToCheck <= 30
 		)
 	{
-		spaceToCheck -= 6;
+		spaceToCheck += 6;
 		dist++;
 	}
 
@@ -106,7 +104,7 @@ int checkBelow(std::string& board, int i)
 		board[i] = truck;
 		board[i + 6] = truck;
 
-		if (spaceToCheck >= 12 && spaceToCheck <= 24)
+		if (spaceToCheck >= 12)
 		{
 			if (board[i] == board[spaceToCheck + 12])
 			{
@@ -115,6 +113,84 @@ int checkBelow(std::string& board, int i)
 
 				// Fill in new extra
 				board[i + 12] = truck;
+			}
+		}
+	}
+
+	return dist;
+}
+
+int checkLeft(std::string& board, int i)
+{
+	// Get car above empty space //
+	//    Move to car
+	int spaceToCheck = i, dist = 0;
+	while (board[spaceToCheck] == 0
+		&& spaceToCheck % 6 > 0
+		)
+	{
+		spaceToCheck--;
+		dist++;
+	}
+
+	// Check orientation
+	if (spaceToCheck % 6 > 1 && board[spaceToCheck] == board[spaceToCheck - 1])
+	{
+		// Move cars
+		int truck = board[spaceToCheck];
+		board[spaceToCheck] = 0;
+		board[spaceToCheck - 1] = 0;
+		board[i] = truck;
+		board[i - 1] = truck;
+
+		if (spaceToCheck % 6 > 2)
+		{
+			if (board[i] == board[spaceToCheck - 2])
+			{
+				// Zero out old extra
+				board[spaceToCheck - 2] = 0;
+
+				// Fill in new extra
+				board[i - 2] = truck;
+			}
+		}
+	}
+
+	return dist;
+}
+
+int checkRight(std::string& board, int i)
+{
+	// Get car above empty space //
+	//    Move to car
+	int spaceToCheck = i, dist = 0;
+	while (board[spaceToCheck] == 0
+		&& spaceToCheck % 6 < 5
+		)
+	{
+		spaceToCheck++;
+		dist++;
+	}
+
+	// Check orientation
+	if (spaceToCheck % 6 < 5 && board[spaceToCheck] == board[spaceToCheck - 1])
+	{
+		// Move cars
+		int truck = board[spaceToCheck];
+		board[spaceToCheck] = 0;
+		board[spaceToCheck + 1] = 0;
+		board[i] = truck;
+		board[i + 1] = truck;
+
+		if (spaceToCheck % 6 > 2)
+		{
+			if (board[i] == board[spaceToCheck + 2])
+			{
+				// Zero out old extra
+				board[spaceToCheck + 2] = 0;
+
+				// Fill in new extra
+				board[i + 2] = truck;
 			}
 		}
 	}
