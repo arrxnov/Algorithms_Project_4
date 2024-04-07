@@ -274,14 +274,14 @@ int main()
 
 			if (moveStack.size() != 1) cout << moveStack.size() << " moves";
 			else cout << "1 move";
-			if (GRADEL_SUBMISSION) cout << ":";
+			if (!GRADEL_SUBMISSION) cout << ":";
 			cout << endl;
 
 			while (!moveStack.empty())
 			{
 				currentMove = moveStack.top();
 				moveStack.pop();
-				if (GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
+				if (!GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
 			}
 
 			return 0;
