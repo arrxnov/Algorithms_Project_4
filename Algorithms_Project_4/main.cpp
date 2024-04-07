@@ -144,7 +144,7 @@ int checkLeft(std::string& board, int i)
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
-		&& spaceToCheck % 6 > 0
+		&& spaceToCheck % 6 >= 1
 		)
 	{
 		spaceToCheck--;
@@ -183,7 +183,7 @@ int checkRight(std::string& board, int i)
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
-		&& spaceToCheck % 6 < 5
+		&& spaceToCheck % 6 <= 4
 		)
 	{
 		spaceToCheck++;
@@ -191,7 +191,7 @@ int checkRight(std::string& board, int i)
 	}
 
 	// Check orientation
-	if (spaceToCheck % 6 < 5 && board[spaceToCheck] == board[spaceToCheck + 1])
+	if (spaceToCheck % 6 <= 4 && board[spaceToCheck] == board[spaceToCheck + 1])
 	{
 		// Move cars
 		int truck = board[spaceToCheck];
@@ -200,7 +200,7 @@ int checkRight(std::string& board, int i)
 		board[i] = truck;
 		board[i + 1] = truck;
 
-		if (spaceToCheck % 6 < 4)
+		if (spaceToCheck % 6 <= 3)
 		{
 			if (board[i] == board[spaceToCheck + 2])
 			{
@@ -341,57 +341,68 @@ int main()
 		// add derivative moves to queue
 		for (int i = 0; i < 36; i++)
 		{
+			int left = 0, right = 0, up = 0, down = 0;
+			string tempBoard;
 			if (board[i] == '0')
 			{
-				string tempBoard = board;
 				int dist;
+				tempBoard = board;
 				dist = checkAbove(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " D";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
+					if (DEBUG) cout << "DOWN" << endl;
+					down++;
 				}
 				else
 				{
 					//if (DEBUG) cout << "[-] No down move for " << i << endl;
 				}
-
+				tempBoard = board;
 				dist = checkBelow(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " U";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
+					if (DEBUG) cout << "UP" << endl;
+					up++;
 				}
 				else
 				{
 					//if (DEBUG) cout << "[-] No up move for " << i << endl;
 				}
-
+				tempBoard = board;
 				dist = checkLeft(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " R";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
+					if (DEBUG) cout << "RIGHT" << endl;
+					right++;
 				}
 				else
 				{
 					//if (DEBUG) cout << "[-] No right move for " << i << endl;
 				}
-
+				tempBoard = board;
 				dist = checkRight(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " L";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
+					if (DEBUG) cout << "LEFT" << endl;
+					left++;
 				}
 				else
 				{
 					//if (DEBUG) cout << "[-] No left move for " << i << endl;
 				}
+				if (DEBUG) cout << "[+] Added " << up + down + left + right << " moves for " << i << "! " << endl;
 			}
 			else
 			{
@@ -417,7 +428,11 @@ int main()
 		}
 		else
 		{
-			if (DEBUG) cout << "[+] Added moves!" << endl;
+			for (int i = 0; i < 6; i++)
+			{
+				for (int j = 0; j < 6; j++) cout << board[i * 6 + j];
+				cout << endl;
+			}
 		}
 		currentMove = moves.front();
 		moves.pop();
