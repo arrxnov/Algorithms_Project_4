@@ -46,12 +46,12 @@ bool isSolved(std::string board)
 	
 	for (int i = 5; i >= 0; i--)
 	{
-		if (board[18 + i] > '1')
+		if (board[12 + i] > '1')
 		{
 			if (DEBUG) std::cout << "[!] Unsolved" << std::endl;
 			return false;
 		}
-		else if (board[18 + i] == '1')
+		else if (board[12 + i] == '1')
 		{
 			if (DEBUG) std::cout << "[+] Solved!" << std::endl;
 			return true;
@@ -191,7 +191,7 @@ int checkRight(std::string& board, int i)
 	}
 
 	// Check orientation
-	if (spaceToCheck % 6 < 5 && board[spaceToCheck] == board[spaceToCheck - 1])
+	if (spaceToCheck % 6 < 5 && board[spaceToCheck] == board[spaceToCheck + 1])
 	{
 		// Move cars
 		int truck = board[spaceToCheck];
@@ -287,32 +287,6 @@ int main()
 	// Main loop, solving and adding moves
 	do 
 	{
-		if (isSolved(board))
-		{
-			// print the solution by going thru backards
-			stack<Move*> moveStack;
-			moveStack.push(currentMove);
-			while (currentMove->parent != NULL)
-			{
-				currentMove = currentMove->parent;
-				moveStack.push(currentMove);
-			}
-
-			if (moveStack.size() != 1) cout << moveStack.size() << " moves";
-			else cout << "1 move";
-			if (!GRADEL_SUBMISSION) cout << ":";
-			cout << endl;
-
-			while (!moveStack.empty())
-			{
-				currentMove = moveStack.top();
-				moveStack.pop();
-				if (!GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
-			}
-
-			return 0;
-		}
-
 		if (previousPositions.find(board) != previousPositions.end())
 		{
 			// if we've been here before skip it and move on
@@ -329,6 +303,41 @@ int main()
 			previousPositions.insert(pair<string, int>(board, 1));
 		}
 
+		if (isSolved(board))
+		{
+			stack<Move*> moveStack;
+			// push the move removing the red car...
+			moveStack.push(currentMove);
+			while (currentMove->parent != NULL)
+			{
+				currentMove = currentMove->parent;
+				moveStack.push(currentMove);
+			}
+
+			if (moveStack.size() != 2) cout << moveStack.size() - 1 << " moves";
+			else cout << "1 move";
+			if (!GRADEL_SUBMISSION) cout << ":";
+			cout << endl;
+
+			while (!moveStack.empty())
+			{
+				currentMove = moveStack.top();
+				moveStack.pop();
+				if (!GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
+				if (DEBUG)
+				{
+					for (int i = 0; i < 6; i++)
+					{
+						for (int j = 0; j < 6; j++) cout << currentMove->board[i * 6 + j];
+						cout << endl;
+					}
+				}
+				delete currentMove;
+			}
+
+			return 0;
+		}
+
 		// add derivative moves to queue
 		for (int i = 0; i < 36; i++)
 		{
@@ -339,54 +348,54 @@ int main()
 				dist = checkAbove(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " D";
+					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " D";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
 				}
 				else
 				{
-					/*if (DEBUG) cout << "[-] No down move for " << i << endl;*/
+					//if (DEBUG) cout << "[-] No down move for " << i << endl;
 				}
 
 				dist = checkBelow(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " U";
+					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " U";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
 				}
 				else
 				{
-					/*if (DEBUG) cout << "[-] No up move for " << i << endl;*/
+					//if (DEBUG) cout << "[-] No up move for " << i << endl;
 				}
 
-				// dist = checkLeft(tempBoard, i);
+				dist = checkLeft(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " R";
+					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " R";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
 				}
 				else
 				{
-					// if (DEBUG) cout << "[-] No right move for " << i << endl;
+					//if (DEBUG) cout << "[-] No right move for " << i << endl;
 				}
 
-				// dist = checkRight(tempBoard, i);
+				dist = checkRight(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " L";
+					string moveString = "" + colorsToNums[(int)(board[i] - 30)] + " " + to_string(dist) + " L";
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
 				}
 				else
 				{
-					// if (DEBUG) cout << "[-] No left move for " << i << endl;
+					//if (DEBUG) cout << "[-] No left move for " << i << endl;
 				}
 			}
 			else
 			{
-				// if (DEBUG) cout << "[!] Space at " << i << " not empty" << endl;
+				//if (DEBUG) cout << "[!] Space at " << i << " not empty" << endl;
 			}
 		}
 
