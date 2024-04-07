@@ -2,6 +2,9 @@
 #include <string>
 #include <queue>
 #include <map>
+#include <stack>
+
+#define GRADEL_SUBMISSION 0
 
 //======================//
 //        CLASSES       //
@@ -128,12 +131,11 @@ int main()
 	using namespace std;
 	
 	int numCars;
-
 	string board = "", startingBoard = "";
-	queue<Move> moves;
-	Move currentMove;
+	queue<Move*> moves;
+	Move* currentMove = new Move("", "", NULL);
 	map<string, int> previousPositions;
-	map<int, string> colorsToNums; // convenience really
+	map<int, string> colorsToNums;
 
 	// read in all input
 	cin >> numCars;
@@ -186,8 +188,26 @@ int main()
 		if (isSolved(board))
 		{
 			// print the solution by going thru backards
+			stack<Move*> moveStack;
+			moveStack.push(currentMove);
+			while (currentMove->parent != NULL)
+			{
+				currentMove = currentMove->parent;
+				moveStack.push(currentMove);
+			}
 
-			// exit gracefully
+			if (moveStack.size() != 1) cout << moveStack.size() << " moves";
+			else cout << "1 move";
+			if (GRADEL_SUBMISSION) cout << ":";
+			cout << endl;
+
+			while (!moveStack.empty())
+			{
+				currentMove = moveStack.top();
+				moveStack.pop();
+				if (GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
+			}
+
 			return 0;
 		}
 
@@ -208,28 +228,32 @@ int main()
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " D";
-					moves.push(Move(tempBoard, moveString, &currentMove));
+					Move* newMove = new Move(tempBoard, moveString, currentMove);
+					moves.push(newMove);
 				}
 
-				dist = checkBelow(board, i);
+				dist = checkBelow(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " U";
-					moves.push(Move(tempBoard, moveString, &currentMove));
+					Move* newMove = new Move(tempBoard, moveString, currentMove);
+					moves.push(newMove);
 				}
 
-				// dist = checkLeft(board, i);
+				// dist = checkLeft(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " R";
-					moves.push(Move(tempBoard, moveString, &currentMove));
+					Move* newMove = new Move(tempBoard, moveString, currentMove);
+					moves.push(newMove);
 				}
 
-				// dist = checkRight(board, i);
+				// dist = checkRight(tempBoard, i);
 				if (tempBoard != board)
 				{
 					string moveString = "" + colorsToNums[board[i]] + " " + to_string(dist) + " L";
-					moves.push(Move(tempBoard, moveString, &currentMove));
+					Move* newMove = new Move(tempBoard, moveString, currentMove);
+					moves.push(newMove);
 				}
 				
 			}
@@ -239,7 +263,7 @@ int main()
 		// Set up for next loop
 		currentMove = moves.front();
 		moves.pop();
-		board = currentMove.board;
+		board = currentMove->board;
 
 	} while (!moves.empty());
 }
