@@ -229,7 +229,6 @@ int main()
 		int col, row;
 		cin >> type >> color >> orientation >> row >> col;
 		
-		// Zero-index justify
 		row--;
 		col--;
 
@@ -277,7 +276,6 @@ int main()
 		
 		if (previousPositions.find(board) != previousPositions.end())
 		{
-			// if we've been here before skip it and move on
 			if (moves.empty())
 			{
 				goto empty;
