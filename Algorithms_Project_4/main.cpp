@@ -90,7 +90,7 @@ int checkAbove(std::string& board, int i)
 
 int checkBelow(std::string& board, int i)
 {
-	// Get car above empty space //
+	// Get car below empty space //
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
@@ -129,7 +129,7 @@ int checkBelow(std::string& board, int i)
 
 int checkLeft(std::string& board, int i)
 {
-	// Get car above empty space //
+	// Get car left of empty space //
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
@@ -168,7 +168,7 @@ int checkLeft(std::string& board, int i)
 
 int checkRight(std::string& board, int i)
 {
-	// Get car above empty space //
+	// Get car right of empty space //
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
@@ -220,7 +220,6 @@ int main()
 	map<string, int> previousPositions;
 	map<char, string> colorsToNums;
 
-	// read in all input
 	cin >> numCars;
 
 	for (int i = 1; i <= numCars; i++)
@@ -274,10 +273,15 @@ int main()
 	// Main loop, solving and adding moves
 	do 
 	{
+		// Old position case
+		
 		if (previousPositions.find(board) != previousPositions.end())
 		{
 			// if we've been here before skip it and move on
-			if (moves.empty()) goto empty;
+			if (moves.empty())
+			{
+				goto empty;
+			}
 			currentMove = moves.front();
 			moves.pop();
 			board = currentMove->board;
@@ -288,10 +292,12 @@ int main()
 			previousPositions[board] = 1;
 		}
 
+		// Solution case
+
 		if (isSolved(board))
 		{
 			stack<Move*> moveStack;
-			// push the move removing the red car...
+			// Add the solution move as final
 			int d = 1;
 			for (int i = 17; board[i] == '0'; i--) 
 			{
@@ -314,23 +320,36 @@ int main()
 				moveStack.push(currentMove);
 			}
 
-			if (moveStack.size() != 1) cout << moveStack.size() << " moves";
-			else cout << "1 move";
-			if (!GRADEL_SUBMISSION) cout << ":";
+			if (moveStack.size() != 1)
+			{
+				cout << moveStack.size() << " moves";
+			}
+			else
+			{
+				cout << "1 move";
+			}
+			if (!GRADEL_SUBMISSION)
+			{
+				cout << ":";
+			}
 			cout << endl;
 
 			while (!moveStack.empty())
 			{
 				currentMove = moveStack.top();
 				moveStack.pop();
-				if (!GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
+				if (!GRADEL_SUBMISSION)
+				{
+					cout << currentMove->moveString << endl;
+				}
 				delete currentMove;
 			}
 
 			return 0;
 		}
 
-		// add derivative moves to queue
+		// Standard case
+
 		for (int i = 0; i < 36; i++)
 		{
 			int left = 0, right = 0, up = 0, down = 0;
@@ -389,10 +408,12 @@ int main()
 			}
 		}
 
-		// Set up for next loop
+		// Unsolvable case
+
 		if (moves.empty())
 		{
-			empty:
+		empty:
+			cout << "[X] No solution" << endl;
 			return 1;
 		}
 
