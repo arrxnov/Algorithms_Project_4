@@ -4,8 +4,7 @@
 #include <map>
 #include <stack>
 
-#define GRADEL_SUBMISSION 0
-#define DEBUG 0
+#define GRADEL_SUBMISSION 1
 
 //======================//
 //        CLASSES       //
@@ -35,29 +34,19 @@ public:
 
 bool isSolved(std::string board)
 {
-	/*if (DEBUG)
-	{
-		for (int i = 0; i < 6; i++)
-		{
-			for (int j = 0; j < 6; j++) std::cout << board[i * 6 + j];
-			std::cout << std::endl;
-		}
-	}*/
-	
 	for (int i = 5; i >= 0; i--)
 	{
 		if (board[12 + i] > '1')
 		{
-			if (DEBUG) std::cout << "[!] Unsolved" << std::endl;
 			return false;
 		}
 		else if (board[12 + i] == '1')
 		{
-			if (DEBUG) std::cout << "[+] Solved!" << std::endl;
 			return true;
 		}
 		else continue;
 	}
+	return false;
 }
 
 int checkAbove(std::string& board, int i)
@@ -83,7 +72,7 @@ int checkAbove(std::string& board, int i)
 		board[i] = truck;
 		board[i - 6] = truck;
 
-		if (spaceToCheck >= 12 && spaceToCheck <= 24)
+		if (spaceToCheck >= 12)
 		{
 			if (board[i] == board[spaceToCheck - 12])
 			{
@@ -105,7 +94,7 @@ int checkBelow(std::string& board, int i)
 	//    Move to car
 	int spaceToCheck = i, dist = 0;
 	while (board[spaceToCheck] == '0'
-		&& spaceToCheck <= 30
+		&& spaceToCheck < 30
 		)
 	{
 		spaceToCheck += 6;
@@ -240,16 +229,15 @@ int main()
 		char orientation;
 		int col, row;
 		cin >> type >> color >> orientation >> row >> col;
+		
+		// Zero-index justify
 		row--;
 		col--;
 
-		// Insert color into the convenience map
 		colorsToNums['0' + i] = color;
 
-		// Insert automobile onto the board
 		if (type == "car")
 		{
-			if (DEBUG) cout << color << " " << type << " at " << row << ", " << col << endl;
 			board[row * 6 + col] = '0' + i;
 			if (orientation == 'h')
 			{
@@ -262,7 +250,6 @@ int main()
 		}
 		else if (type == "truck")
 		{
-			if (DEBUG) cout << color << " " << type << " at " << row << ", " << col << endl;
 			board[row * 6 + col] = '0' + i;
 			if (orientation == 'h')
 			{
@@ -316,14 +303,18 @@ int main()
 			finalString.append(" R");
 			Move* finalMove = new Move("", finalString, currentMove);
 			moveStack.push(finalMove);
-			moveStack.push(currentMove);
-			while (currentMove->parent->parent != NULL)
+			if (currentMove->moveString != "")
+			{
+				moveStack.push(currentMove);
+			}
+
+			while (currentMove->parent != NULL && currentMove->parent->parent != NULL)
 			{
 				currentMove = currentMove->parent;
 				moveStack.push(currentMove);
 			}
 
-			if (moveStack.size() != 2) cout << moveStack.size() << " moves";
+			if (moveStack.size() != 1) cout << moveStack.size() << " moves";
 			else cout << "1 move";
 			if (!GRADEL_SUBMISSION) cout << ":";
 			cout << endl;
@@ -333,14 +324,6 @@ int main()
 				currentMove = moveStack.top();
 				moveStack.pop();
 				if (!GRADEL_SUBMISSION) cout << currentMove->moveString << endl;
-				if (DEBUG)
-				{
-					for (int i = 0; i < 6; i++)
-					{
-						for (int j = 0; j < 6; j++) cout << currentMove->board[i * 6 + j];
-						cout << endl;
-					}
-				}
 				delete currentMove;
 			}
 
@@ -359,7 +342,7 @@ int main()
 				dist = checkAbove(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = colorsToNums[tempBoard[i] + '0'];
+					string moveString = colorsToNums[tempBoard[i]];
 					moveString.append(" ");
 					moveString.append(to_string(dist));
 					moveString.append(" D");
@@ -371,7 +354,7 @@ int main()
 				dist = checkBelow(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = colorsToNums[tempBoard[i] + '0'];
+					string moveString = colorsToNums[tempBoard[i]];
 					moveString.append(" ");
 					moveString.append(to_string(dist));
 					moveString.append(" U");
@@ -383,7 +366,7 @@ int main()
 				dist = checkLeft(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = colorsToNums[tempBoard[i] + '0'];
+					string moveString = colorsToNums[tempBoard[i]];
 					moveString.append(" ");
 					moveString.append(to_string(dist));
 					moveString.append(" R");
@@ -395,14 +378,14 @@ int main()
 				dist = checkRight(tempBoard, i);
 				if (tempBoard != board)
 				{
-					string moveString = colorsToNums[tempBoard[i] + '0'];
+					string moveString = colorsToNums[tempBoard[i]];
+					moveString.append(" ");
 					moveString.append(to_string(dist));
 					moveString.append(" L");
 					Move* newMove = new Move(tempBoard, moveString, currentMove);
 					moves.push(newMove);
 					left++;
 				}
-				if (DEBUG) cout << "[+] Added " << up + down + left + right << " moves for " << i << "! " << endl;
 			}
 		}
 
@@ -410,16 +393,6 @@ int main()
 		if (moves.empty())
 		{
 			empty:
-			if (DEBUG)
-			{
-				cout << "[?] Finished queue without finishing puzzle" << endl;
-				cout << "--- Was testing board: " << endl;
-				for (int i = 0; i < 6; i++)
-				{
-					for (int j = 0; j < 6; j++) cout << board[i * 6 + j];
-					cout << endl;
-				}
-			}
 			return 1;
 		}
 
